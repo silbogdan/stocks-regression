@@ -1,15 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-x = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).T
-y = np.array([4204.11, 4297.50, 4395.26, 4522.68, 4307.54, 4605.38, 4567.00, 4766.18, 4700.58, 4704.01]).T
+y = np.array([2607.39, 2754.86, 2803.98, 2903.80, 2854.71, 2890.17, 2996.11, 2897.50, 2982.16, 2977.68, 3104.90, 3176.75, 3278.20, 3277.31, 2652.39, 2761.98, 2919.61, 3104.66, 3207.62, 3391.71, 3365.52, 3418.70, 3548.99, 3695.31, 3793.75, 3883.43, 3910.51, 4141.18, 4167.85, 4238.49, 4363.71, 4454.21, 4493.28, 4460.71, 4667.39, 4610.81]).T
+x = np.array(['01-01-2019', '01-02-2019', '01-03-2019', '01-04-2019', '01-05-2019', '01-06-2019', '01-07-2019', '01-08-2019', '01-09-2019', '01-10-2019', '01-11-2019', '01-12-2019', '01-01-2020', '01-02-2020', '01-03-2020', '01-04-2020', '01-05-2020', '01-06-2020', '01-07-2020', '01-08-2020', '01-09-2020', '01-10-2020', '01-11-2020', '01-12-2020', '01-01-2021', '01-02-2021', '01-03-2021', '01-04-2021', '01-05-2021', '01-06-2021', '01-07-2021', '01-08-2021', '01-09-2021', '01-10-2021', '01-11-2021', '01-12-2021']).T
 yCopy = np.copy(y)
 
-plt.scatter(x, y)
+plt.scatter(range(x.size), y)
 
 onesArr = np.ones((x.shape[0], 1))
-
-A = np.column_stack((onesArr, x))
+A = np.column_stack((onesArr, range(x.size)))
 print(A)
 
 m, n = A.shape
@@ -59,7 +58,7 @@ for k in range(n):
     tau = 0
     for i in range(k, m):
         tau = tau + U[i,k] * y[i]
-    tau =tau / beta[k]
+    tau = tau / beta[k]
     for i in range(k, m):
         y[i] = y[i] - tau * U[i,k]
 
@@ -83,13 +82,14 @@ print(c)
 
 newY = np.array([])
 
-for val in range(20):
-    print("Val " + str(val) + ": " + str(val * c[1] + c[0]))
+# Anticipam pe un anumit interval
+for val in range(36):
     newY = np.append(newY, val * c[1] + c[0])
 
-plt.plot(range(20), newY)
+plt.plot(range(36), newY)
 
 print("Simple error: " + str(getError(yCopy, newY)))
 print("R squared error: " + str(getRSquaredError(yCopy, newY)))
 
+plt.xticks(rotation=60)
 plt.show()
