@@ -4,20 +4,15 @@ Link {
     text-decoration: none;
 }
 
-.container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    height: 100vh;
-}
-
 .logo-container {
+    margin-top: 40px;
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
 .text-container {
+    margin-top: 100px;
     display: flex;
     justify-content: center;
     margin-top: 60px;
@@ -35,8 +30,10 @@ Link {
 }
 
 .cards-container {
+    margin-top: 40px;
     display: flex;
     justify-content: space-evenly;
     margin-bottom: 70px;
     flex-wrap: wrap;
+    gap: 15px;
 }

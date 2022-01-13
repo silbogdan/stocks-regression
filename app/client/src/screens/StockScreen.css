@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;900&display=swap');
+
+.stock-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.title-container {
+    flex-grow: 1;
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.chart-container {
+    flex-grow: 20;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.text-title {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 900;
+    font-size: 3rem;
+}
+
+#chart {
+    width: 500px; 
+    height: 400px;
+}
