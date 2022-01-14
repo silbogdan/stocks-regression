@@ -73,6 +73,8 @@ const polygonToDataTable = (polygonResponse) => {
         return dataTable;
     }
 
+    console.log(responseList);
+
     dataTable.addData(responseList);
     return dataTable;
 }
