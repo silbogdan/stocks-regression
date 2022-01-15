@@ -28,7 +28,7 @@ const timestampToDate = (timestamp) => {
 let responseList = [];
 
 /*
-    Creates an AnyChart stock datatable from Polygon.io aggregate response
+    Creates an AnyChart stock newDataTable from Polygon.io aggregate response
 
     https://polygon.io/docs/stocks/get_v2_aggs_ticker__stocksticker__range__multiplier___timespan___from___to
 
@@ -54,8 +54,9 @@ let responseList = [];
         "ticker": String
     }
 */
-const polygonToDataTable = (polygonResponse) => {
-    let dataTable = anychart.data.table();
+const polygonTonewDataTable = (polygonResponse) => {
+    responseList = [];
+    let newDataTable = anychart.data.table();
     try {
         // Iterate through each candlestick of response tick history
         for (let stick of polygonResponse.results) {
@@ -70,21 +71,19 @@ const polygonToDataTable = (polygonResponse) => {
             responseList.push(price);
         }
     } catch (err) {
-        return dataTable;
+        return newDataTable;
     }
 
-    console.log(responseList);
-
-    dataTable.addData(responseList);
-    return dataTable;
+    newDataTable.addData(responseList);
+    return newDataTable;
 }
 
 const getStockChart = (stockResponse) => {
-    let dataTable = polygonToDataTable(stockResponse);
+    let newDataTable = polygonTonewDataTable(stockResponse);
     let chart = anychart.stock();
     let firstPlot = chart.plot(0);
-    firstPlot.area(dataTable.mapAs({'value': 4})).name(stockResponse.ticker);
-    chart.scroller().area(dataTable.mapAs({'value': 4}));
+    firstPlot.area(newDataTable.mapAs({ 'value': 4 })).name(stockResponse.ticker);
+    chart.scroller().area(newDataTable.mapAs({ 'value': 4 }));
     return chart;
 }
 
@@ -97,15 +96,16 @@ export const StockScreen = () => {
     const [chart, setChart] = useState("");
 
     useEffect(() => {
+        responseList = [];
         const getStockData = async () => {
             let settings = {
                 method: 'get',
                 url: `https://api.polygon.io/v2/aggs/ticker/${location.state.tick}/range/1/month/2019-07-22/2022-01-15?adjusted=true&sort=asc&limit=5000`,
-                headers: { 
-                  'Authorization': `Bearer ${config.API_KEY}`
+                headers: {
+                    'Authorization': `Bearer ${config.API_KEY}`
                 }
-              };
-              
+            };
+
             const response = await axios(settings);
             // const response = config.response;
             const newChart = getStockChart(response.data);
@@ -116,10 +116,6 @@ export const StockScreen = () => {
     }, []);
 
     const handleRef = async () => {
-        console.log(investRef.current.value);
-        console.log(durationRef.current.value + " months");
-        console.log(futureValue.current);
-
         let data = {
             predictionTime: durationRef.current.value,
             values: responseList
@@ -128,38 +124,46 @@ export const StockScreen = () => {
         let settings = {
             method: 'post',
             url: 'http://127.0.0.1:5000/',
-            headers: { 
-              'Content-Type': 'application/json'
+            headers: {
+                'Content-Type': 'application/json'
             },
-            data : JSON.stringify(data)
-          };
-          
-        console.log(settings);
+            data: JSON.stringify(data)
+        };
 
         let response = await axios(settings);
-
-        console.log(response.data.prediction);
-        // const newChart = getStockChart(response.data.prediction);
-        // setChart(newChart);
 
         let finalValue = (investRef.current.value * response.data.finalPrice) / responseList[responseList.length - 1][4]
         futureValue.current.textContent = `In ${durationRef.current.value} months, your investment will have a value of $${Number.parseFloat(finalValue).toFixed(2)}`;
 
+        // Create a new chart from API response.
+        responseList = [];
+        let newDataTable = anychart.data.table();
+        for (let stick of response.data.prediction) {
+            stick[0] = timestampToDate(stick[0]);
+            responseList.push(stick);
+        }
+        newDataTable.addData(responseList);
+
+        let newChart = anychart.stock();
+        let firstPlot = newChart.plot(0);
+        firstPlot.area(newDataTable.mapAs({ 'value': 4 })).name(location.state.tick);
+        newChart.scroller().area(newDataTable.mapAs({ 'value': 4 }));
+        setChart(newChart);
+
         investRef.current.value = "";
-        durationRef.current.value = 3;
     }
 
     return (
         <div className="stock-container">
-            <div className="title-container"> 
-                <h1 className="text-title">{ location.state.fullName }</h1>
+            <div className="title-container">
+                <h1 className="text-title">{location.state.fullName}</h1>
             </div>
             <div className="chart-container">
                 <AnyChart
                     width={1400}
                     height={450}
                     instance={chart}
-                /> 
+                />
             </div>
             <div className="selection-container">
                 <p className="text-investment">Select your desired investment</p>

@@ -73,6 +73,7 @@ def hello():
     yCopy = np.copy(y)
     onesArr = np.ones((x.shape[0], 1))
     A = np.column_stack((onesArr, range(x.size)))
+    print(A)
     m, n = A.shape
     U, R, beta = TORT(A, m, n)
 
