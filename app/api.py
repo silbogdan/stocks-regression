@@ -79,15 +79,17 @@ def hello():
 
     for k in range(n):
         tau = 0
-    for i in range(k, m):
-        tau = tau + U[i,k] * y[i]
-    tau = tau / beta[k]
-    for i in range(k, m):
-        y[i] = y[i] - tau * U[i,k]
+        for i in range(k, m):
+            tau = tau + U[i,k] * y[i]
+        tau = tau / beta[k]
+        for i in range(k, m):
+            y[i] = y[i] - tau * U[i,k]
 
     c = Utris(R[0:n,:], y[0:n])
         
     newY = np.array([])
+
+    print("C1: " + str(c[1]) + " C0: " + str(c[0]))
 
     for val in range(yCopy.size + int(resData["predictionTime"])):
         newY = np.append(newY, val * c[1] + c[0])
