@@ -1,8 +1,11 @@
 import numpy as np
-import matplotlib.pyplot as plt
+import datetime
+from dateutil.relativedelta import relativedelta
 
 from flask import Flask, request
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)
 
 def TORT (A, m, n):
     U = np.zeros((m, n))
@@ -56,14 +59,17 @@ def getRSquaredError(initVec, finalVec):
 
     return 1 - (err / meanErr)
 
-@app.route("/")
+@app.route("/", methods = ['POST'])
 def hello():
     resData = request.json
+
     x = np.array([])
     y = np.array([])
     for stick in resData["values"]:
         x = np.append(x, str(stick[0]))
         y = np.append(y, stick[4])
+
+    print(x)
     yCopy = np.copy(y)
     onesArr = np.ones((x.shape[0], 1))
     A = np.column_stack((onesArr, range(x.size)))
@@ -82,11 +88,24 @@ def hello():
         
     newY = np.array([])
 
-    for val in range(yCopy.size + resData["predictionTime"]):
+    for val in range(yCopy.size + int(resData["predictionTime"])):
         newY = np.append(newY, val * c[1] + c[0])
 
+    # Innoim vectorul pentru datele preturilor de close
+    lastDate = x[x.size - 1]
+    lastDate = datetime.datetime.strptime(lastDate, '%Y-%m-%d')
 
-    # return {"dates": x.tolist(), "closingPrices": y.tolist()}
-    return {"prediction": newY.tolist(), "initialSize": yCopy.size, "finalSize": newY.size}
+    for index in range(newY.size - x.size):
+        lastDate = lastDate + relativedelta(months=+1)
+        x = np.append(x, str(lastDate).split()[0])
+
+    prediction = []
+
+    for index in range(newY.size):
+        prediction.append([x[index], 0, 0, 0, newY[index]])
+
+    finalPrice = newY[newY.size - 1]
+
+    return { "prediction": prediction, "initialSize": yCopy.size, "finalSize": newY.size, "finalPrice": finalPrice }
 
     

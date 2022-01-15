@@ -98,16 +98,16 @@ export const StockScreen = () => {
 
     useEffect(() => {
         const getStockData = async () => {
-            // let settings = {
-            //     method: 'get',
-            //     url: `https://api.polygon.io/v2/aggs/ticker/${props.tick}/range/1/day/2019-07-22/2021-07-22?adjusted=true&sort=asc&limit=5000`,
-            //     headers: { 
-            //       'Authorization': `Bearer ${config.API_KEY}`
-            //     }
-            //   };
+            let settings = {
+                method: 'get',
+                url: `https://api.polygon.io/v2/aggs/ticker/${location.state.tick}/range/1/month/2019-07-22/2022-01-15?adjusted=true&sort=asc&limit=5000`,
+                headers: { 
+                  'Authorization': `Bearer ${config.API_KEY}`
+                }
+              };
               
-            // const response = await axios(settings)S;
-            const response = config.response;
+            const response = await axios(settings);
+            // const response = config.response;
             const newChart = getStockChart(response.data);
             setChart(newChart);
         }
@@ -115,12 +115,35 @@ export const StockScreen = () => {
         getStockData();
     }, []);
 
-    const handleRef = () => {
+    const handleRef = async () => {
         console.log(investRef.current.value);
         console.log(durationRef.current.value + " months");
         console.log(futureValue.current);
 
-        futureValue.current.textContent = `In ${durationRef.current.value} months, your investment will have a value of $${investRef.current.value}`;
+        let data = {
+            predictionTime: durationRef.current.value,
+            values: responseList
+        }
+
+        let settings = {
+            method: 'post',
+            url: 'http://127.0.0.1:5000/',
+            headers: { 
+              'Content-Type': 'application/json'
+            },
+            data : JSON.stringify(data)
+          };
+          
+        console.log(settings);
+
+        let response = await axios(settings);
+
+        console.log(response.data.prediction);
+        // const newChart = getStockChart(response.data.prediction);
+        // setChart(newChart);
+
+        let finalValue = (investRef.current.value * response.data.finalPrice) / responseList[responseList.length - 1][4]
+        futureValue.current.textContent = `In ${durationRef.current.value} months, your investment will have a value of $${Number.parseFloat(finalValue).toFixed(2)}`;
 
         investRef.current.value = "";
         durationRef.current.value = 3;
@@ -143,9 +166,9 @@ export const StockScreen = () => {
                 <div className="box">
                     <input type="text" className="input-box" placeholder="$100" ref={investRef} />
                     <select name="duration" id="duration" ref={durationRef} className="input-box">
-                        <option value="3">3 months</option>
-                        <option value="6">6 months</option>
-                        <option value="12">12 months</option>
+                        <option value="12">1 year</option>
+                        <option value="36">3 years</option>
+                        <option value="60">5 years</option>
                     </select>
                     <button className="invest-button" onClick={handleRef}>INVEST</button>
                 </div>
